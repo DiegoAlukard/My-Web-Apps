@@ -21,7 +21,7 @@
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
         .btn-acao { padding: 12px 10px; font-size: 11px !important; font-weight: 900; text-transform: uppercase; }
         .card-item:active { background-color: #111113; transform: scale(0.98); transition: 0.1s; }
-        #modal-edit { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        #modal-edit { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-200">
@@ -32,7 +32,7 @@
             <input type="text" id="edit-nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
             <input type="number" id="edit-valor" inputmode="decimal" step="0.01" class="w-full mb-6 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
             <div class="flex gap-3">
-                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Sair</button>
+                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Cancelar</button>
                 <button onclick="confirmarEdicao()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest">Salvar</button>
             </div>
         </div>
@@ -51,9 +51,9 @@
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
-        <div class="flex justify-between items-center mb-6 px-2">
+        <div class="flex justify-between items-center mb-6">
             <button onclick="voltarAoMenu()" class="text-zinc-500 text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 rounded-xl">← Menu</button>
-            <span class="text-zinc-800 text-[11px] font-black uppercase">Finanças Casal</span>
+            <span class="text-zinc-800 text-[11px] font-black uppercase tracking-tighter">Finanças Casal</span>
         </div>
 
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6 relative">
@@ -61,11 +61,11 @@
             <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-5 px-2">
                 <div>
-                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Entradas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Receitas</p>
                     <p id="resumo-receitas" class="text-emerald-300 text-sm font-black">R$ 0,00</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Pagos</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Despesas</p>
                     <p id="resumo-despesas" class="text-rose-300 text-sm font-black">R$ 0,00</p>
                 </div>
             </div>
@@ -89,7 +89,7 @@
                         <div class="bg-indigo-500/20 p-3 rounded-2xl"><span class="text-2xl">🗓️</span></div>
                         <div>
                             <h4 class="text-white font-black text-sm uppercase tracking-wider">Finalizar Mês</h4>
-                            <p class="text-zinc-500 text-[10px] font-bold uppercase">Arquivar e limpar lista</p>
+                            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Arquivar e limpar lista</p>
                         </div>
                     </div>
                     <span class="text-zinc-700 text-xl font-black">→</span>
@@ -162,7 +162,10 @@
             }
         }
 
-        function apagarMes(id) {
+        function riscar(id) { const i = dadosAtuais.find(x => x.id === id); if(i) { i.riscado = !i.riscado; persistir(); } }
+        function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
+
+        function apagarMesHistorico(id) {
             if(confirm("Excluir este mês do histórico?")) {
                 hist = hist.filter(m => m.id !== id);
                 localStorage.setItem('f_v12_hi', JSON.stringify(hist));
@@ -170,13 +173,10 @@
             }
         }
 
-        function riscar(id) { const i = dadosAtuais.find(x => x.id === id); if(i) { i.riscado = !i.riscado; persistir(); } }
-        function apagar(id) { if(confirm("Apagar item?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
-
         function fecharMesESalvar() {
             const nome = prompt("Nome do mês (ex: Maio/26):");
             if (!nome) return;
-            let r=0, d=0; 
+            let r=0, d=0;
             dadosAtuais.forEach(x => x.tipo==='receita' ? r+=x.valor : d+=x.valor);
             hist.unshift({ id: Date.now(), nome, receita: r, despesa: d });
             localStorage.setItem('f_v12_hi', JSON.stringify(hist));
@@ -189,20 +189,24 @@
             const lista = document.getElementById('lista');
             lista.innerHTML = "";
             let receitasTotal = 0;
+            let despesasTotal = 0;
             let despesasPagas = 0;
 
             const ord = [...dadosAtuais].sort((a,b) => a.tipo==='receita' ? -1 : 1);
             ord.forEach(i => {
                 if(i.tipo === 'receita') receitasTotal += i.valor;
-                if(i.tipo === 'despesa' && i.riscado) despesasPagas += i.valor;
+                if(i.tipo === 'despesa') {
+                    despesasTotal += i.valor;
+                    if(i.riscado) despesasPagas += i.valor;
+                }
 
                 const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
                 lista.innerHTML += `
                     <div onmousedown="iniciarPressao(${i.id})" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${i.id})" ontouchend="cancelarPressao()" 
                          class="card-item bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
                         <div class="${i.riscado?'riscado':''}">
-                            <p class="font-bold text-white text-base mb-1">${i.nome}</p>
-                            <p class="font-black ${cV} text-sm">R$ ${i.valor.toFixed(2)}</p>
+                            <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
+                            <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
                             ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">PAGO EM ${i.dataPagamento}</p>` : ''}
                         </div>
                         <div class="flex gap-2">
@@ -217,7 +221,7 @@
             hDiv.innerHTML = "";
             hist.forEach(m => {
                 hDiv.innerHTML += `
-                    <div class="bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50">
+                    <div class="bg-zinc-900/50 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50">
                         <div>
                             <p class="text-white font-bold text-sm mb-1">${m.nome}</p>
                             <div class="flex gap-3 text-[10px] font-black uppercase">
@@ -225,14 +229,15 @@
                                 <span class="text-rose-500">Desp: R$ ${m.despesa.toFixed(2)}</span>
                             </div>
                         </div>
-                        <button onclick="apagarMes(${m.id})" class="text-zinc-700 p-2 font-black">✕</button>
+                        <button onclick="apagarMesHistorico(${m.id})" class="text-zinc-700 p-2 font-black">✕</button>
                     </div>`;
             });
 
             const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            // LÓGICA: Saldo = Receitas - O que já foi pago
             document.getElementById('saldo-total').innerText = fmt(receitasTotal - despesasPagas);
             document.getElementById('resumo-receitas').innerText = fmt(receitasTotal);
-            document.getElementById('resumo-despesas').innerText = fmt(despesasPagas);
+            document.getElementById('resumo-despesas').innerText = fmt(despesasTotal);
         }
     </script>
 </body>
