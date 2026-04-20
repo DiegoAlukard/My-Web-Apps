@@ -21,9 +21,23 @@
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
         .btn-acao { padding: 12px 10px; font-size: 11px !important; font-weight: 900; text-transform: uppercase; }
         .card-item:active { background-color: #111113; transform: scale(0.98); transition: 0.1s; }
+        /* Estilo do Modal */
+        #modal-edit { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-200">
+
+    <div id="modal-edit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="bg-zinc-900 w-full max-w-[340px] p-8 rounded-[3rem] border border-zinc-800 shadow-2xl">
+            <h3 class="text-white font-black text-xl mb-6 text-center uppercase tracking-widest">Editar Item</h3>
+            <input type="text" id="edit-nome" placeholder="Nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
+            <input type="number" id="edit-valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-6 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            <div class="flex gap-3">
+                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="confirmarEdicao()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest">Salvar</button>
+            </div>
+        </div>
+    </div>
 
     <div id="welcome-screen" class="flex flex-col items-center justify-center min-h-screen p-6">
         <div class="bg-zinc-900 p-10 rounded-[3rem] border border-zinc-800 w-full max-w-[340px] shadow-2xl text-center">
@@ -60,9 +74,7 @@
 
         <div class="bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-800 mb-8 shadow-xl">
             <input type="text" id="desc" placeholder="Nome (Ex: Salário)" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
-            
             <input type="number" id="valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
-            
             <div class="flex gap-3">
                 <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
                 <button onclick="salvar('despesa')" class="flex-1 bg-rose-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">- Despesa</button>
@@ -103,6 +115,7 @@
 
         let dadosAtuais = JSON.parse(localStorage.getItem('f_v12_at')) || [...dadosIniciais];
         let hist = JSON.parse(localStorage.getItem('f_v12_hi')) || [];
+        let itemSendoEditado = null;
 
         function irApp() { document.getElementById('welcome-screen').classList.add('hidden'); document.getElementById('main-app').classList.remove('hidden'); atualizar(); }
         function voltarAoMenu() { document.getElementById('main-app').classList.add('hidden'); document.getElementById('welcome-screen').classList.remove('hidden'); }
@@ -122,19 +135,29 @@
         function iniciarPressao(id) { timerSegurar = setTimeout(() => editarItem(id), 800); }
         function cancelarPressao() { clearTimeout(timerSegurar); }
 
+        // --- NOVA LÓGICA DE EDIÇÃO (MODAL) ---
         function editarItem(id) {
             const item = dadosAtuais.find(x => x.id === id);
             if (!item) return;
-            const nN = prompt("Novo nome:", item.nome);
-            if (nN === null) return;
-            
-            // Tentativa de forçar numérico no prompt (limitado pelo sistema)
-            const nV = prompt("Novo valor:", item.valor);
-            if (nV === null) return;
-            
-            item.nome = nN;
-            item.valor = parseFloat(nV.replace(',', '.')) || 0;
-            persistir();
+            itemSendoEditado = item;
+            document.getElementById('edit-nome').value = item.nome;
+            document.getElementById('edit-valor').value = item.valor;
+            document.getElementById('modal-edit').classList.remove('hidden');
+        }
+
+        function fecharModal() { document.getElementById('modal-edit').classList.add('hidden'); itemSendoEditado = null; }
+
+        function confirmarEdicao() {
+            if (itemSendoEditado) {
+                const novoNome = document.getElementById('edit-nome').value;
+                const novoValor = parseFloat(document.getElementById('edit-valor').value);
+                if (novoNome && !isNaN(novoValor)) {
+                    itemSendoEditado.nome = novoNome;
+                    itemSendoEditado.valor = novoValor;
+                    persistir();
+                    fecharModal();
+                }
+            }
         }
 
         function marcarConfirmado(id) {
