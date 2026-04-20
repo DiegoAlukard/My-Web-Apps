@@ -60,7 +60,9 @@
 
         <div class="bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-800 mb-8 shadow-xl">
             <input type="text" id="desc" placeholder="Nome (Ex: Salário)" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
-            <input type="number" id="valor" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            
+            <input type="number" id="valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            
             <div class="flex gap-3">
                 <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
                 <button onclick="salvar('despesa')" class="flex-1 bg-rose-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">- Despesa</button>
@@ -125,10 +127,13 @@
             if (!item) return;
             const nN = prompt("Novo nome:", item.nome);
             if (nN === null) return;
+            
+            // Tentativa de forçar numérico no prompt (limitado pelo sistema)
             const nV = prompt("Novo valor:", item.valor);
             if (nV === null) return;
+            
             item.nome = nN;
-            item.valor = parseFloat(nV) || 0;
+            item.valor = parseFloat(nV.replace(',', '.')) || 0;
             persistir();
         }
 
@@ -173,7 +178,7 @@
 
                 const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
                 const labelBotao = i.tipo==='receita' ? 'recebi' : 'pago';
-                const corBotao = i.tipo==='receita' ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' : 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+                const corBotao = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
 
                 lista.innerHTML += `
                     <div onmousedown="iniciarPressao(${i.id})" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${i.id})" ontouchend="cancelarPressao()" 
@@ -202,8 +207,6 @@
             });
 
             const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
-            // O SALDO AGORA VOLTOU A SER A CONTA FIXA (TOTAL RECEITAS - TOTAL DESPESAS)
             document.getElementById('saldo-total').innerText = fmt(rt - dt);
             document.getElementById('resumo-receitas').innerText = fmt(rt);
             document.getElementById('resumo-despesas').innerText = fmt(dt);
