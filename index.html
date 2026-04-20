@@ -12,9 +12,8 @@
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
         .card-item:active { background-color: #111113; transform: scale(0.98); }
         #modal-edit { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
-        /* Animação simples de confirmação */
-        .flash-success { animation: flash 0.5s ease; }
-        @keyframes flash { 0% { background-color: #050505; } 50% { background-color: #14532d; } 100% { background-color: #050505; } }
+        .flash-success { animation: flash 0.4s ease; }
+        @keyframes flash { 0% { background-color: #050505; } 50% { background-color: #064e3b; } 100% { background-color: #050505; } }
     </style>
 </head>
 <body id="corpo" class="font-sans antialiased text-slate-200">
@@ -34,24 +33,25 @@
     <div id="welcome-screen" class="flex flex-col items-center justify-center min-h-screen p-6">
         <div class="bg-zinc-900 p-10 rounded-[3rem] border border-zinc-800 w-full max-w-[340px] shadow-2xl text-center">
             <h1 class="text-4xl font-black text-white mb-2">Olá! 👋</h1>
-            <div class="space-y-4 mt-8">
-                <button onclick="irApp()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold text-lg">Continuar</button>
-                <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-5 rounded-2xl font-bold border border-zinc-700">Novo Mês</button>
+            <p class="text-zinc-500 text-sm mb-10">Controle financeiro do casal</p>
+            <div class="space-y-4">
+                <button onclick="irApp()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold text-lg active:scale-95 transition-all">Continuar</button>
+                <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-5 rounded-2xl font-bold border border-zinc-700 active:scale-95 transition-all">Novo Mês</button>
             </div>
         </div>
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6">
-            <p class="text-indigo-200 text-[10px] font-bold uppercase text-center mb-1">Saldo Disponível (Receitas - Pagos)</p>
-            <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter">R$ 0,00</h2>
+            <p class="text-indigo-200 text-[10px] font-bold uppercase text-center mb-1">Saldo Disponível (Rec. - Pagos)</p>
+            <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-5">
                 <div>
-                    <p class="text-white/50 text-[10px] font-bold uppercase">Entradas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase">Receitas</p>
                     <p id="resumo-receitas" class="text-emerald-300 text-sm font-black">R$ 0,00</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-white/50 text-[10px] font-bold uppercase">Total Despesas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase">Despesas</p>
                     <p id="resumo-despesas" class="text-rose-300 text-sm font-black">R$ 0,00</p>
                 </div>
             </div>
@@ -69,14 +69,27 @@
         <div id="lista" class="space-y-4 mb-12"></div>
 
         <div id="secao-historico" class="pt-10 border-t border-zinc-900">
-            <button onclick="fecharMesESalvar()" class="w-full bg-zinc-900 p-6 rounded-[2rem] border border-zinc-800 mb-6 text-white font-bold uppercase text-xs">Finalizar e Arquivar Mês</button>
+            <h3 class="text-[11px] font-black text-zinc-600 uppercase tracking-widest mb-4 ml-2">Finalizar Período</h3>
+            <button onclick="fecharMesESalvar()" class="w-full bg-zinc-900 p-6 rounded-[2rem] border border-zinc-800 mb-8 text-white font-bold uppercase text-xs active:scale-95">Arquivar Mês e Limpar</button>
+            
+            <h3 class="text-[11px] font-black text-zinc-600 uppercase tracking-widest mb-4 ml-2">Histórico</h3>
             <div id="historico-meses" class="space-y-3"></div>
         </div>
     </div>
 
     <script>
-        let dadosAtuais = JSON.parse(localStorage.getItem('f_v13_at')) || [];
-        let hist = JSON.parse(localStorage.getItem('f_v13_hi')) || [];
+        // SEUS DADOS PRÉ-PREENCHIDOS
+        const dadosPadrao = [
+            { id: 1, nome: "Financiamento", valor: 1800.00, tipo: "despesa", riscado: false },
+            { id: 2, nome: "Condominio", valor: 218.00, tipo: "despesa", riscado: false },
+            { id: 3, nome: "Luz", valor: 250.00, tipo: "despesa", riscado: false },
+            { id: 4, nome: "Internet", valor: 80.00, tipo: "despesa", riscado: false },
+            { id: 5, nome: "Perua", valor: 240.00, tipo: "despesa", riscado: false },
+            { id: 6, nome: "Celular", valor: 60.00, tipo: "despesa", riscado: false }
+        ];
+
+        let dadosAtuais = JSON.parse(localStorage.getItem('f_v14_at')) || [...dadosPadrao];
+        let hist = JSON.parse(localStorage.getItem('f_v14_hi')) || [];
         let itemSendoEditado = null;
 
         function irApp() { 
@@ -90,12 +103,12 @@
             const val = parseFloat(v.value);
             if (!d.value || isNaN(val)) return;
 
-            dadosAtuais.push({ id: Date.now(), nome: d.value, valor: val, tipo, riscado: false });
+            dadosAtuais.push({ id: Date.now(), nome: d.value, valor: val, tipo: tipo, riscado: false });
             
-            // Feedback e Limpeza
+            // Limpa formulário e dá feedback
             d.value = ""; v.value = "";
             document.getElementById('corpo').classList.add('flash-success');
-            setTimeout(() => document.getElementById('corpo').classList.remove('flash-success'), 500);
+            setTimeout(() => document.getElementById('corpo').classList.remove('flash-success'), 400);
             
             persistir();
         }
@@ -127,21 +140,32 @@
             }
         }
 
-        function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
+        function apagar(id) { if(confirm("Apagar item?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
+
+        function apagarMesHistorico(id) {
+            if(confirm("Excluir este mês do histórico?")) {
+                hist = hist.filter(m => m.id !== id);
+                localStorage.setItem('f_v14_hi', JSON.stringify(hist));
+                atualizar();
+            }
+        }
 
         function fecharMesESalvar() {
-            const nome = prompt("Nome do mês:");
+            const nome = prompt("Nome do mês (ex: Maio/26):");
             if (!nome) return;
             let r=0, d=0;
             dadosAtuais.forEach(x => x.tipo==='receita' ? r+=x.valor : d+=x.valor);
             hist.unshift({ id: Date.now(), nome, receita: r, despesa: d });
-            localStorage.setItem('f_v13_hi', JSON.stringify(hist));
-            alert("Mês arquivado!");
-            location.reload();
+            localStorage.setItem('f_v14_hi', JSON.stringify(hist));
+            
+            // Reseta para o padrão após arquivar
+            dadosAtuais = [...dadosPadrao];
+            persistir();
+            alert("Mês arquivado! Dados resetados para o padrão.");
         }
 
         function persistir() { 
-            localStorage.setItem('f_v13_at', JSON.stringify(dadosAtuais)); 
+            localStorage.setItem('f_v14_at', JSON.stringify(dadosAtuais)); 
             atualizar(); 
         }
 
@@ -152,7 +176,10 @@
             let despesasTotal = 0;
             let despesasPagas = 0;
 
-            dadosAtuais.forEach(i => {
+            // Ordenar: Receitas primeiro
+            const ordenados = [...dadosAtuais].sort((a,b) => a.tipo === 'receita' ? -1 : 1);
+
+            ordenados.forEach(i => {
                 const valor = parseFloat(i.valor);
                 if(i.tipo === 'receita') {
                     receitasTotal += valor;
@@ -172,21 +199,43 @@
                         <div class="flex gap-2">
                             ${i.tipo === 'despesa' ? `
                                 <button onclick="marcarPago(${i.id})" class="px-4 py-2 rounded-xl font-bold text-[10px] uppercase border ${i.riscado ? 'bg-zinc-800 border-zinc-700 text-zinc-500' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'}">
-                                    ${i.riscado ? 'Pago ✓' : 'Pagar'}
+                                    ${i.riscado ? 'Pago' : 'Pagar'}
                                 </button>` : ''}
                             <button onclick="apagar(${i.id})" class="px-3 text-rose-500 font-black">✕</button>
                         </div>
                     </div>`;
             });
 
+            const hDiv = document.getElementById('historico-meses');
+            hDiv.innerHTML = "";
+            hist.forEach(m => {
+                hDiv.innerHTML += `
+                    <div class="bg-zinc-900/50 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50">
+                        <div>
+                            <p class="text-white font-bold text-sm mb-1">${m.nome}</p>
+                            <div class="flex gap-3 text-[10px] font-black uppercase">
+                                <span class="text-emerald-500">Rec: R$ ${m.receita.toFixed(2)}</span>
+                                <span class="text-rose-500">Desp: R$ ${m.despesa.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <button onclick="apagarMesHistorico(${m.id})" class="text-zinc-700 p-2 font-black">✕</button>
+                    </div>`;
+            });
+
             const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            // CÁLCULO: Saldo = Todas as Receitas - Apenas o que foi pago
+            // LÓGICA: Receitas Totais - Apenas despesas com "Pagar" clicado
             document.getElementById('saldo-total').innerText = fmt(receitasTotal - despesasPagas);
             document.getElementById('resumo-receitas').innerText = fmt(receitasTotal);
             document.getElementById('resumo-despesas').innerText = fmt(despesasTotal);
         }
 
-        function prepararNovoMes() { if(confirm("Limpar tudo?")) { localStorage.removeItem('f_v13_at'); location.reload(); } }
+        function prepararNovoMes() { 
+            if(confirm("Deseja iniciar um novo mês com os dados padrão?")) { 
+                dadosAtuais = JSON.parse(JSON.stringify(dadosPadrao)); 
+                persistir(); 
+                irApp();
+            } 
+        }
     </script>
 </body>
 </html>
