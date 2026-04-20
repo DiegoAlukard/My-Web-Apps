@@ -6,7 +6,7 @@
     
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
-    <meta name="apple-mobile-web-app-title" content="Finanças">
+    <meta name="apple-mobile-web-app-title" content="Finanças Casal">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -17,23 +17,9 @@
         .riscado { text-decoration: line-through; opacity: 0.3; filter: grayscale(1); }
         .item-animado { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        
-        /* Prevenção de zoom automático no iPhone */
         input { font-size: 16px !important; }
-        
-        body { 
-            -webkit-tap-highlight-color: transparent; 
-            background-color: #050505; 
-            user-select: none; /* Evita selecionar texto ao segurar para editar */
-        }
-        
-        .btn-acao {
-            padding: 12px 10px;
-            font-size: 11px !important;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
+        body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
+        .btn-acao { padding: 12px 10px; font-size: 11px !important; font-weight: 900; text-transform: uppercase; }
         .card-item:active { background-color: #111113; transform: scale(0.98); transition: 0.1s; }
     </style>
 </head>
@@ -43,7 +29,6 @@
         <div class="bg-zinc-900 p-10 rounded-[3rem] border border-zinc-800 w-full max-w-[340px] shadow-2xl text-center">
             <h1 class="text-4xl font-black text-white mb-2 tracking-tight">Olá! 👋</h1>
             <p class="text-zinc-500 text-sm mb-12 font-medium">O que faremos hoje?</p>
-            
             <div class="space-y-4">
                 <button onclick="continuarOndeParou()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all shadow-lg text-lg">Continuar</button>
                 <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all border border-zinc-700">Novo Mês</button>
@@ -53,29 +38,28 @@
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
-        
         <div class="flex justify-between items-center mb-6">
             <button onclick="voltarAoMenu()" class="text-zinc-500 text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 rounded-xl">← Voltar</button>
             <span class="text-zinc-800 text-[11px] font-black uppercase tracking-tighter">Finanças Casal</span>
         </div>
 
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6 relative">
-            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo</p>
+            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo do Mês</p>
             <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-5 px-2">
                 <div>
                     <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Receitas</p>
-                    <p id="resumo-receitas" class="text-emerald-300 text-xl font-black leading-none text-sm">R$ 0,00</p>
+                    <p id="resumo-receitas" class="text-emerald-300 text-sm font-black">R$ 0,00</p>
                 </div>
                 <div class="text-right">
                     <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Despesas</p>
-                    <p id="resumo-despesas" class="text-rose-300 text-xl font-black leading-none text-sm">R$ 0,00</p>
+                    <p id="resumo-despesas" class="text-rose-300 text-sm font-black">R$ 0,00</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-800 mb-8 shadow-xl">
-            <input type="text" id="desc" placeholder="Nome (Ex: Aluguel)" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
+            <input type="text" id="desc" placeholder="Nome (Ex: Salário)" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
             <input type="number" id="valor" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
             <div class="flex gap-3">
                 <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
@@ -86,22 +70,18 @@
         <div id="lista" class="space-y-4 mb-12"></div>
 
         <div id="secao-historico" class="space-y-6 pt-10 border-t border-zinc-900">
-            
             <div onclick="fecharMesESalvar()" class="bg-gradient-to-tr from-zinc-900 to-zinc-800 p-6 rounded-[2.5rem] border border-zinc-700/50 shadow-xl active:scale-95 transition-all group">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="bg-indigo-500/20 p-3 rounded-2xl">
-                            <span class="text-2xl">🗓️</span>
-                        </div>
+                        <div class="bg-indigo-500/20 p-3 rounded-2xl"><span class="text-2xl">🗓️</span></div>
                         <div>
                             <h4 class="text-white font-black text-sm uppercase tracking-wider">Finalizar Mês</h4>
                             <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Salvar no histórico e limpar</p>
                         </div>
                     </div>
-                    <span class="text-zinc-700 group-active:text-indigo-500 transition-colors text-xl font-black">→</span>
+                    <span class="text-zinc-700 text-xl font-black">→</span>
                 </div>
             </div>
-
             <div class="space-y-3">
                 <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Histórico de Meses</h3>
                 <div id="historico-meses" class="space-y-3"></div>
@@ -122,22 +102,10 @@
         let dadosAtuais = JSON.parse(localStorage.getItem('f_v12_at')) || [...dadosIniciais];
         let hist = JSON.parse(localStorage.getItem('f_v12_hi')) || [];
 
-        function irApp() {
-            document.getElementById('welcome-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            atualizar();
-        }
-        function voltarAoMenu() {
-            document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('welcome-screen').classList.remove('hidden');
-        }
+        function irApp() { document.getElementById('welcome-screen').classList.add('hidden'); document.getElementById('main-app').classList.remove('hidden'); atualizar(); }
+        function voltarAoMenu() { document.getElementById('main-app').classList.add('hidden'); document.getElementById('welcome-screen').classList.remove('hidden'); }
         function continuarOndeParou() { irApp(); }
-        function prepararNovoMes() {
-            if(confirm("Iniciar novo mês? Lançamentos extras serão limpos.")) {
-                dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais));
-                persistir(); irApp();
-            }
-        }
+        function prepararNovoMes() { if(confirm("Iniciar novo mês?")) { dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais)); persistir(); irApp(); } }
         function scrollParaHistorico() { irApp(); setTimeout(() => document.getElementById('secao-historico').scrollIntoView({behavior:'smooth'}), 300); }
 
         function salvar(tipo) {
@@ -148,7 +116,6 @@
             persistir(); d.value = ""; v.value = "";
         }
 
-        // --- FUNÇÃO DE EDIÇÃO (PRESSIONAR) ---
         let timerSegurar;
         function iniciarPressao(id) { timerSegurar = setTimeout(() => editarItem(id), 800); }
         function cancelarPressao() { clearTimeout(timerSegurar); }
@@ -165,26 +132,29 @@
             persistir();
         }
 
-        function marcarPago(id) {
+        function marcarConfirmado(id) {
             const i = dadosAtuais.find(x => x.id === id);
-            if (i && confirm(`Pagar ${i.nome}?`)) {
-                i.dataPagamento = new Date().toLocaleDateString('pt-BR');
-                i.riscado = true; persistir();
+            if (i) {
+                const msg = i.tipo === 'receita' ? `Confirmar recebimento de ${i.nome}?` : `Pagar ${i.nome}?`;
+                if (confirm(msg)) {
+                    i.dataPagamento = new Date().toLocaleDateString('pt-BR');
+                    i.riscado = true; 
+                    persistir();
+                }
             }
         }
-        function riscar(id) { 
-            const i = dadosAtuais.find(x => x.id === id);
-            if(i) { i.riscado = !i.riscado; persistir(); }
-        }
-        function apagar(id) {
-            if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); }
-        }
+        function riscar(id) { const i = dadosAtuais.find(x => x.id === id); if(i) { i.riscado = !i.riscado; persistir(); } }
+        function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
 
         function fecharMesESalvar() {
             const nome = prompt("Nome do mês (ex: Maio/26):");
             if (!nome) return;
-            let r=0, d=0; dadosAtuais.forEach(x => x.tipo==='receita'? r+=x.valor : d+=x.valor);
-            hist.unshift({ id: Date.now(), nome, valor: (r-d) });
+            let rt=0, dt=0; 
+            dadosAtuais.forEach(x => {
+                if(x.tipo === 'receita') rt += x.valor;
+                if(x.tipo === 'despesa') dt += x.valor;
+            });
+            hist.unshift({ id: Date.now(), nome, valor: (rt - dt) });
             localStorage.setItem('f_v12_hi', JSON.stringify(hist));
             voltarAoMenu();
         }
@@ -198,18 +168,23 @@
 
             const ord = [...dadosAtuais].sort((a,b) => a.tipo==='receita' ? -1 : 1);
             ord.forEach(i => {
-                i.tipo==='receita'? rt+=i.valor : dt+=i.valor;
+                if (i.tipo === 'receita') rt += i.valor;
+                if (i.tipo === 'despesa') dt += i.valor;
+
                 const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
+                const labelBotao = i.tipo==='receita' ? 'recebi' : 'pago';
+                const corBotao = i.tipo==='receita' ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' : 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+
                 lista.innerHTML += `
                     <div onmousedown="iniciarPressao(${i.id})" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${i.id})" ontouchend="cancelarPressao()" 
                          class="card-item bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
                         <div class="${i.riscado?'riscado':''}">
                             <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
                             <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
-                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">PAGO EM ${i.dataPagamento}</p>` : ''}
+                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">CONFIRMADO EM ${i.dataPagamento}</p>` : ''}
                         </div>
                         <div class="flex gap-2">
-                            ${!i.dataPagamento && i.tipo==='despesa' ? `<button onclick="marcarPago(${i.id})" class="btn-acao text-emerald-500 bg-emerald-500/10 rounded-xl border border-emerald-500/20">pago</button>` : ''}
+                            ${!i.riscado ? `<button onclick="marcarConfirmado(${i.id})" class="btn-acao ${corBotao} rounded-xl border">${labelBotao}</button>` : ''}
                             <button onclick="riscar(${i.id})" class="btn-acao text-indigo-400 bg-indigo-500/10 rounded-xl border border-indigo-500/20">riscar</button>
                             <button onclick="apagar(${i.id})" class="px-3 py-2 text-rose-500 text-lg font-black">✕</button>
                         </div>
@@ -227,6 +202,8 @@
             });
 
             const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            // O SALDO AGORA VOLTOU A SER A CONTA FIXA (TOTAL RECEITAS - TOTAL DESPESAS)
             document.getElementById('saldo-total').innerText = fmt(rt - dt);
             document.getElementById('resumo-receitas').innerText = fmt(rt);
             document.getElementById('resumo-despesas').innerText = fmt(dt);
