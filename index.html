@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    <meta name="apple-mobile-web-app-title" content="Finanças">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <title>Finanças Casal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,9 +18,8 @@
         .item-animado { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         input { font-size: 16px !important; }
-        body { -webkit-tap-highlight-color: transparent; background-color: #050505; }
+        body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
         
-        /* Ajuste fino para os botões da lista */
         .btn-acao {
             padding: 12px 10px;
             font-size: 11px !important;
@@ -21,6 +27,9 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
+        /* Feedback visual ao segurar */
+        .card-item:active { background-color: #18181b; transform: scale(0.98); transition: 0.1s; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-200">
@@ -74,7 +83,6 @@
         <div id="secao-historico" class="space-y-4 pt-6 border-t border-zinc-900">
             <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Meses Anteriores</h3>
             <div id="historico-meses" class="space-y-3"></div>
-
             <button onclick="fecharMesESalvar()" class="w-full py-10 text-zinc-600 text-[11px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors">Finalizar Mês Atual</button>
         </div>
     </div>
@@ -89,8 +97,8 @@
             { id: 6, nome: "Celular", valor: 60.00, tipo: "despesa", riscado: false, dataPagamento: null }
         ];
 
-        let dadosAtuais = JSON.parse(localStorage.getItem('f_v10_at')) || [...dadosIniciais];
-        let hist = JSON.parse(localStorage.getItem('f_v10_hi')) || [];
+        let dadosAtuais = JSON.parse(localStorage.getItem('f_v11_at')) || [...dadosIniciais];
+        let hist = JSON.parse(localStorage.getItem('f_v11_hi')) || [];
 
         function continuarOndeParou() { irApp(); }
         function prepararNovoMes() {
@@ -119,6 +127,29 @@
             persistir(); d.value = ""; v.value = "";
         }
 
+        // --- FUNÇÃO DE EDIÇÃO (SEGURAR) ---
+        let timerSegurar;
+        function iniciarPressao(id) {
+            timerSegurar = setTimeout(() => editarItem(id), 800);
+        }
+        function cancelarPressao() { clearTimeout(timerSegurar); }
+
+        function editarItem(id) {
+            const item = dadosAtuais.find(x => x.id === id);
+            if (!item) return;
+
+            const novoNome = prompt("Editar nome:", item.nome);
+            if (novoNome === null) return;
+            
+            const novoValor = prompt("Editar valor:", item.valor);
+            if (novoValor === null) return;
+
+            item.nome = novoNome;
+            item.valor = parseFloat(novoValor) || 0;
+            persistir();
+        }
+        // ----------------------------------
+
         function marcarPago(id) {
             const i = dadosAtuais.find(x => x.id === id);
             if (i && confirm(`Pagar ${i.nome}?`)) {
@@ -139,11 +170,11 @@
             if (!nome) return;
             let r=0, d=0; dadosAtuais.forEach(x => x.tipo==='receita'? r+=x.valor : d+=x.valor);
             hist.unshift({ id: Date.now(), nome, valor: (r-d) });
-            localStorage.setItem('f_v10_hi', JSON.stringify(hist));
+            localStorage.setItem('f_v11_hi', JSON.stringify(hist));
             voltarAoMenu();
         }
 
-        function persistir() { localStorage.setItem('f_v10_at', JSON.stringify(dadosAtuais)); atualizar(); }
+        function persistir() { localStorage.setItem('f_v11_at', JSON.stringify(dadosAtuais)); atualizar(); }
 
         function atualizar() {
             const lista = document.getElementById('lista');
@@ -155,7 +186,8 @@
                 i.tipo==='receita'? rt+=i.valor : dt+=i.valor;
                 const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
                 lista.innerHTML += `
-                    <div class="bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
+                    <div onmousedown="iniciarPressao(${i.id})" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${i.id})" ontouchend="cancelarPressao()" 
+                         class="card-item bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
                         <div class="${i.riscado?'riscado':''}">
                             <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
                             <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
