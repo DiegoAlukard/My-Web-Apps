@@ -6,7 +6,7 @@
     
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
-    <meta name="apple-mobile-web-app-title" content="Finanças Casal">
+    <meta name="apple-mobile-web-app-title" content="Finanças">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -21,7 +21,6 @@
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
         .btn-acao { padding: 12px 10px; font-size: 11px !important; font-weight: 900; text-transform: uppercase; }
         .card-item:active { background-color: #111113; transform: scale(0.98); transition: 0.1s; }
-        /* Estilo do Modal */
         #modal-edit { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
     </style>
 </head>
@@ -30,10 +29,10 @@
     <div id="modal-edit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
         <div class="bg-zinc-900 w-full max-w-[340px] p-8 rounded-[3rem] border border-zinc-800 shadow-2xl">
             <h3 class="text-white font-black text-xl mb-6 text-center uppercase tracking-widest">Editar Item</h3>
-            <input type="text" id="edit-nome" placeholder="Nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
-            <input type="number" id="edit-valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-6 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            <input type="text" id="edit-nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
+            <input type="number" id="edit-valor" inputmode="decimal" step="0.01" class="w-full mb-6 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
             <div class="flex gap-3">
-                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Sair</button>
                 <button onclick="confirmarEdicao()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest">Salvar</button>
             </div>
         </div>
@@ -52,28 +51,28 @@
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
-        <div class="flex justify-between items-center mb-6">
-            <button onclick="voltarAoMenu()" class="text-zinc-500 text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 rounded-xl">← Voltar</button>
-            <span class="text-zinc-800 text-[11px] font-black uppercase tracking-tighter">Finanças Casal</span>
+        <div class="flex justify-between items-center mb-6 px-2">
+            <button onclick="voltarAoMenu()" class="text-zinc-500 text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 rounded-xl">← Menu</button>
+            <span class="text-zinc-800 text-[11px] font-black uppercase">Finanças Casal</span>
         </div>
 
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6 relative">
-            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo do Mês</p>
+            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo Disponível</p>
             <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-5 px-2">
                 <div>
-                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Receitas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Entradas</p>
                     <p id="resumo-receitas" class="text-emerald-300 text-sm font-black">R$ 0,00</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Despesas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Pagos</p>
                     <p id="resumo-despesas" class="text-rose-300 text-sm font-black">R$ 0,00</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-800 mb-8 shadow-xl">
-            <input type="text" id="desc" placeholder="Nome (Ex: Salário)" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
+            <input type="text" id="desc" placeholder="Nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
             <input type="number" id="valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
             <div class="flex gap-3">
                 <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
@@ -90,14 +89,14 @@
                         <div class="bg-indigo-500/20 p-3 rounded-2xl"><span class="text-2xl">🗓️</span></div>
                         <div>
                             <h4 class="text-white font-black text-sm uppercase tracking-wider">Finalizar Mês</h4>
-                            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Salvar no histórico e limpar</p>
+                            <p class="text-zinc-500 text-[10px] font-bold uppercase">Arquivar e limpar lista</p>
                         </div>
                     </div>
                     <span class="text-zinc-700 text-xl font-black">→</span>
                 </div>
             </div>
             <div class="space-y-3">
-                <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Histórico de Meses</h3>
+                <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Meses Anteriores</h3>
                 <div id="historico-meses" class="space-y-3"></div>
             </div>
         </div>
@@ -120,7 +119,7 @@
         function irApp() { document.getElementById('welcome-screen').classList.add('hidden'); document.getElementById('main-app').classList.remove('hidden'); atualizar(); }
         function voltarAoMenu() { document.getElementById('main-app').classList.add('hidden'); document.getElementById('welcome-screen').classList.remove('hidden'); }
         function continuarOndeParou() { irApp(); }
-        function prepararNovoMes() { if(confirm("Iniciar novo mês?")) { dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais)); persistir(); irApp(); } }
+        function prepararNovoMes() { if(confirm("Limpar lançamentos atuais?")) { dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais)); persistir(); irApp(); } }
         function scrollParaHistorico() { irApp(); setTimeout(() => document.getElementById('secao-historico').scrollIntoView({behavior:'smooth'}), 300); }
 
         function salvar(tipo) {
@@ -135,7 +134,6 @@
         function iniciarPressao(id) { timerSegurar = setTimeout(() => editarItem(id), 800); }
         function cancelarPressao() { clearTimeout(timerSegurar); }
 
-        // --- NOVA LÓGICA DE EDIÇÃO (MODAL) ---
         function editarItem(id) {
             const item = dadosAtuais.find(x => x.id === id);
             if (!item) return;
@@ -149,40 +147,38 @@
 
         function confirmarEdicao() {
             if (itemSendoEditado) {
-                const novoNome = document.getElementById('edit-nome').value;
-                const novoValor = parseFloat(document.getElementById('edit-valor').value);
-                if (novoNome && !isNaN(novoValor)) {
-                    itemSendoEditado.nome = novoNome;
-                    itemSendoEditado.valor = novoValor;
-                    persistir();
-                    fecharModal();
-                }
+                itemSendoEditado.nome = document.getElementById('edit-nome').value;
+                itemSendoEditado.valor = parseFloat(document.getElementById('edit-valor').value) || 0;
+                persistir(); fecharModal();
             }
         }
 
-        function marcarConfirmado(id) {
+        function marcarPago(id) {
             const i = dadosAtuais.find(x => x.id === id);
-            if (i) {
-                const msg = i.tipo === 'receita' ? `Confirmar recebimento de ${i.nome}?` : `Pagar ${i.nome}?`;
-                if (confirm(msg)) {
-                    i.dataPagamento = new Date().toLocaleDateString('pt-BR');
-                    i.riscado = true; 
-                    persistir();
-                }
+            if (i && confirm(`Marcar ${i.nome} como pago?`)) {
+                i.dataPagamento = new Date().toLocaleDateString('pt-BR');
+                i.riscado = true; 
+                persistir();
             }
         }
+
+        function apagarMes(id) {
+            if(confirm("Excluir este mês do histórico?")) {
+                hist = hist.filter(m => m.id !== id);
+                localStorage.setItem('f_v12_hi', JSON.stringify(hist));
+                atualizar();
+            }
+        }
+
         function riscar(id) { const i = dadosAtuais.find(x => x.id === id); if(i) { i.riscado = !i.riscado; persistir(); } }
-        function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
+        function apagar(id) { if(confirm("Apagar item?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
 
         function fecharMesESalvar() {
             const nome = prompt("Nome do mês (ex: Maio/26):");
             if (!nome) return;
-            let rt=0, dt=0; 
-            dadosAtuais.forEach(x => {
-                if(x.tipo === 'receita') rt += x.valor;
-                if(x.tipo === 'despesa') dt += x.valor;
-            });
-            hist.unshift({ id: Date.now(), nome, valor: (rt - dt) });
+            let r=0, d=0; 
+            dadosAtuais.forEach(x => x.tipo==='receita' ? r+=x.valor : d+=x.valor);
+            hist.unshift({ id: Date.now(), nome, receita: r, despesa: d });
             localStorage.setItem('f_v12_hi', JSON.stringify(hist));
             voltarAoMenu();
         }
@@ -192,27 +188,25 @@
         function atualizar() {
             const lista = document.getElementById('lista');
             lista.innerHTML = "";
-            let rt=0, dt=0;
+            let receitasTotal = 0;
+            let despesasPagas = 0;
 
             const ord = [...dadosAtuais].sort((a,b) => a.tipo==='receita' ? -1 : 1);
             ord.forEach(i => {
-                if (i.tipo === 'receita') rt += i.valor;
-                if (i.tipo === 'despesa') dt += i.valor;
+                if(i.tipo === 'receita') receitasTotal += i.valor;
+                if(i.tipo === 'despesa' && i.riscado) despesasPagas += i.valor;
 
                 const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
-                const labelBotao = i.tipo==='receita' ? 'recebi' : 'pago';
-                const corBotao = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-
                 lista.innerHTML += `
                     <div onmousedown="iniciarPressao(${i.id})" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${i.id})" ontouchend="cancelarPressao()" 
                          class="card-item bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
                         <div class="${i.riscado?'riscado':''}">
-                            <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
-                            <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
-                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">CONFIRMADO EM ${i.dataPagamento}</p>` : ''}
+                            <p class="font-bold text-white text-base mb-1">${i.nome}</p>
+                            <p class="font-black ${cV} text-sm">R$ ${i.valor.toFixed(2)}</p>
+                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">PAGO EM ${i.dataPagamento}</p>` : ''}
                         </div>
                         <div class="flex gap-2">
-                            ${!i.riscado ? `<button onclick="marcarConfirmado(${i.id})" class="btn-acao ${corBotao} rounded-xl border">${labelBotao}</button>` : ''}
+                            ${!i.riscado && i.tipo==='despesa' ? `<button onclick="marcarPago(${i.id})" class="btn-acao text-emerald-500 bg-emerald-500/10 rounded-xl border border-emerald-500/20">pago</button>` : ''}
                             <button onclick="riscar(${i.id})" class="btn-acao text-indigo-400 bg-indigo-500/10 rounded-xl border border-indigo-500/20">riscar</button>
                             <button onclick="apagar(${i.id})" class="px-3 py-2 text-rose-500 text-lg font-black">✕</button>
                         </div>
@@ -223,16 +217,22 @@
             hDiv.innerHTML = "";
             hist.forEach(m => {
                 hDiv.innerHTML += `
-                    <div class="bg-zinc-900/30 p-4 rounded-2xl flex justify-between border border-zinc-800/30 text-xs">
-                        <span class="text-zinc-600 font-bold">${m.nome}</span>
-                        <span class="font-black ${m.valor>=0?'text-emerald-500':'text-rose-500'}">R$ ${m.valor.toFixed(2)}</span>
+                    <div class="bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50">
+                        <div>
+                            <p class="text-white font-bold text-sm mb-1">${m.nome}</p>
+                            <div class="flex gap-3 text-[10px] font-black uppercase">
+                                <span class="text-emerald-500">Rec: R$ ${m.receita.toFixed(2)}</span>
+                                <span class="text-rose-500">Desp: R$ ${m.despesa.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <button onclick="apagarMes(${m.id})" class="text-zinc-700 p-2 font-black">✕</button>
                     </div>`;
             });
 
             const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('saldo-total').innerText = fmt(rt - dt);
-            document.getElementById('resumo-receitas').innerText = fmt(rt);
-            document.getElementById('resumo-despesas').innerText = fmt(dt);
+            document.getElementById('saldo-total').innerText = fmt(receitasTotal - despesasPagas);
+            document.getElementById('resumo-receitas').innerText = fmt(receitasTotal);
+            document.getElementById('resumo-despesas').innerText = fmt(despesasPagas);
         }
     </script>
 </body>
