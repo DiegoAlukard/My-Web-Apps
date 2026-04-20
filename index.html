@@ -17,19 +17,24 @@
         .riscado { text-decoration: line-through; opacity: 0.3; filter: grayscale(1); }
         .item-animado { animation: slideIn 0.2s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Prevenção de zoom automático no iPhone */
         input { font-size: 16px !important; }
-        body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
+        
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #050505; 
+            user-select: none; /* Evita selecionar texto ao segurar para editar */
+        }
         
         .btn-acao {
             padding: 12px 10px;
             font-size: 11px !important;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        /* Feedback visual ao segurar */
-        .card-item:active { background-color: #18181b; transform: scale(0.98); transition: 0.1s; }
+        .card-item:active { background-color: #111113; transform: scale(0.98); transition: 0.1s; }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-200">
@@ -55,16 +60,16 @@
         </div>
 
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6 relative">
-            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo em Aberto</p>
+            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo</p>
             <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-5 px-2">
                 <div>
                     <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Receitas</p>
-                    <p id="resumo-receitas" class="text-emerald-300 text-xl font-black leading-none">R$ 0,00</p>
+                    <p id="resumo-receitas" class="text-emerald-300 text-xl font-black leading-none text-sm">R$ 0,00</p>
                 </div>
                 <div class="text-right">
                     <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Despesas</p>
-                    <p id="resumo-despesas" class="text-rose-300 text-xl font-black leading-none">R$ 0,00</p>
+                    <p id="resumo-despesas" class="text-rose-300 text-xl font-black leading-none text-sm">R$ 0,00</p>
                 </div>
             </div>
         </div>
@@ -80,10 +85,27 @@
 
         <div id="lista" class="space-y-4 mb-12"></div>
 
-        <div id="secao-historico" class="space-y-4 pt-6 border-t border-zinc-900">
-            <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Meses Anteriores</h3>
-            <div id="historico-meses" class="space-y-3"></div>
-            <button onclick="fecharMesESalvar()" class="w-full py-10 text-zinc-600 text-[11px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors">Finalizar Mês Atual</button>
+        <div id="secao-historico" class="space-y-6 pt-10 border-t border-zinc-900">
+            
+            <div onclick="fecharMesESalvar()" class="bg-gradient-to-tr from-zinc-900 to-zinc-800 p-6 rounded-[2.5rem] border border-zinc-700/50 shadow-xl active:scale-95 transition-all group">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-indigo-500/20 p-3 rounded-2xl">
+                            <span class="text-2xl">🗓️</span>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-black text-sm uppercase tracking-wider">Finalizar Mês</h4>
+                            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Salvar no histórico e limpar</p>
+                        </div>
+                    </div>
+                    <span class="text-zinc-700 group-active:text-indigo-500 transition-colors text-xl font-black">→</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Histórico de Meses</h3>
+                <div id="historico-meses" class="space-y-3"></div>
+            </div>
         </div>
     </div>
 
@@ -97,18 +119,9 @@
             { id: 6, nome: "Celular", valor: 60.00, tipo: "despesa", riscado: false, dataPagamento: null }
         ];
 
-        let dadosAtuais = JSON.parse(localStorage.getItem('f_v11_at')) || [...dadosIniciais];
-        let hist = JSON.parse(localStorage.getItem('f_v11_hi')) || [];
+        let dadosAtuais = JSON.parse(localStorage.getItem('f_v12_at')) || [...dadosIniciais];
+        let hist = JSON.parse(localStorage.getItem('f_v12_hi')) || [];
 
-        function continuarOndeParou() { irApp(); }
-        function prepararNovoMes() {
-            if(confirm("Iniciar novo mês? Lançamentos extras serão limpos.")) {
-                dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais));
-                persistir(); irApp();
-            }
-        }
-        function scrollParaHistorico() { irApp(); setTimeout(() => document.getElementById('secao-historico').scrollIntoView({behavior:'smooth'}), 300); }
-        
         function irApp() {
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
@@ -118,6 +131,14 @@
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('welcome-screen').classList.remove('hidden');
         }
+        function continuarOndeParou() { irApp(); }
+        function prepararNovoMes() {
+            if(confirm("Iniciar novo mês? Lançamentos extras serão limpos.")) {
+                dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais));
+                persistir(); irApp();
+            }
+        }
+        function scrollParaHistorico() { irApp(); setTimeout(() => document.getElementById('secao-historico').scrollIntoView({behavior:'smooth'}), 300); }
 
         function salvar(tipo) {
             const d = document.getElementById('desc'), v = document.getElementById('valor');
@@ -127,28 +148,22 @@
             persistir(); d.value = ""; v.value = "";
         }
 
-        // --- FUNÇÃO DE EDIÇÃO (SEGURAR) ---
+        // --- FUNÇÃO DE EDIÇÃO (PRESSIONAR) ---
         let timerSegurar;
-        function iniciarPressao(id) {
-            timerSegurar = setTimeout(() => editarItem(id), 800);
-        }
+        function iniciarPressao(id) { timerSegurar = setTimeout(() => editarItem(id), 800); }
         function cancelarPressao() { clearTimeout(timerSegurar); }
 
         function editarItem(id) {
             const item = dadosAtuais.find(x => x.id === id);
             if (!item) return;
-
-            const novoNome = prompt("Editar nome:", item.nome);
-            if (novoNome === null) return;
-            
-            const novoValor = prompt("Editar valor:", item.valor);
-            if (novoValor === null) return;
-
-            item.nome = novoNome;
-            item.valor = parseFloat(novoValor) || 0;
+            const nN = prompt("Novo nome:", item.nome);
+            if (nN === null) return;
+            const nV = prompt("Novo valor:", item.valor);
+            if (nV === null) return;
+            item.nome = nN;
+            item.valor = parseFloat(nV) || 0;
             persistir();
         }
-        // ----------------------------------
 
         function marcarPago(id) {
             const i = dadosAtuais.find(x => x.id === id);
@@ -170,11 +185,11 @@
             if (!nome) return;
             let r=0, d=0; dadosAtuais.forEach(x => x.tipo==='receita'? r+=x.valor : d+=x.valor);
             hist.unshift({ id: Date.now(), nome, valor: (r-d) });
-            localStorage.setItem('f_v11_hi', JSON.stringify(hist));
+            localStorage.setItem('f_v12_hi', JSON.stringify(hist));
             voltarAoMenu();
         }
 
-        function persistir() { localStorage.setItem('f_v11_at', JSON.stringify(dadosAtuais)); atualizar(); }
+        function persistir() { localStorage.setItem('f_v12_at', JSON.stringify(dadosAtuais)); atualizar(); }
 
         function atualizar() {
             const lista = document.getElementById('lista');
@@ -191,12 +206,12 @@
                         <div class="${i.riscado?'riscado':''}">
                             <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
                             <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
-                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase tracking-tighter">PAGO EM ${i.dataPagamento}</p>` : ''}
+                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">PAGO EM ${i.dataPagamento}</p>` : ''}
                         </div>
                         <div class="flex gap-2">
                             ${!i.dataPagamento && i.tipo==='despesa' ? `<button onclick="marcarPago(${i.id})" class="btn-acao text-emerald-500 bg-emerald-500/10 rounded-xl border border-emerald-500/20">pago</button>` : ''}
                             <button onclick="riscar(${i.id})" class="btn-acao text-indigo-400 bg-indigo-500/10 rounded-xl border border-indigo-500/20">riscar</button>
-                            <button onclick="apagar(${i.id})" class="px-3 py-2 text-rose-500 text-lg font-black leading-none">✕</button>
+                            <button onclick="apagar(${i.id})" class="px-3 py-2 text-rose-500 text-lg font-black">✕</button>
                         </div>
                     </div>`;
             });
