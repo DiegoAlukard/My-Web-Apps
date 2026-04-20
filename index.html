@@ -12,6 +12,15 @@
         @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         input { font-size: 16px !important; }
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; }
+        
+        /* Ajuste fino para os botões da lista */
+        .btn-acao {
+            padding: 12px 10px;
+            font-size: 11px !important;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 <body class="font-sans antialiased text-slate-200">
@@ -22,9 +31,9 @@
             <p class="text-zinc-500 text-sm mb-12 font-medium">O que faremos hoje?</p>
             
             <div class="space-y-4">
-                <button onclick="continuarOndeParou()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold active:scale-95 transition-all shadow-lg">Continuar</button>
-                <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-4 rounded-2xl font-bold active:scale-95 transition-all border border-zinc-700">Novo Mês</button>
-                <button onclick="scrollParaHistorico()" class="w-full text-zinc-500 py-2 text-xs font-bold uppercase tracking-widest">Ver Histórico</button>
+                <button onclick="continuarOndeParou()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all shadow-lg text-lg">Continuar</button>
+                <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all border border-zinc-700">Novo Mês</button>
+                <button onclick="scrollParaHistorico()" class="w-full text-zinc-500 py-3 text-sm font-bold uppercase tracking-widest">Ver Histórico</button>
             </div>
         </div>
     </div>
@@ -32,41 +41,41 @@
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
         
         <div class="flex justify-between items-center mb-6">
-            <button onclick="voltarAoMenu()" class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-zinc-900 rounded-lg">← Voltar</button>
-            <span class="text-zinc-800 text-[10px] font-black uppercase tracking-widest tracking-tighter">Finanças Casal</span>
+            <button onclick="voltarAoMenu()" class="text-zinc-500 text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 rounded-xl">← Voltar</button>
+            <span class="text-zinc-800 text-[11px] font-black uppercase tracking-tighter">Finanças Casal</span>
         </div>
 
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6 relative">
-            <p class="text-indigo-200 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo em Aberto</p>
-            <h2 id="saldo-total" class="text-4xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
-            <div class="flex justify-between border-t border-white/10 pt-4 px-2">
+            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo em Aberto</p>
+            <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
+            <div class="flex justify-between border-t border-white/10 pt-5 px-2">
                 <div>
-                    <p class="text-white/50 text-[8px] font-bold uppercase mb-1">Receitas</p>
-                    <p id="resumo-receitas" class="text-emerald-300 text-base font-black leading-none text-sm">R$ 0,00</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Receitas</p>
+                    <p id="resumo-receitas" class="text-emerald-300 text-xl font-black leading-none">R$ 0,00</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-white/50 text-[8px] font-bold uppercase mb-1">Despesas</p>
-                    <p id="resumo-despesas" class="text-rose-300 text-base font-black leading-none text-sm">R$ 0,00</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Despesas</p>
+                    <p id="resumo-despesas" class="text-rose-300 text-xl font-black leading-none">R$ 0,00</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-zinc-900 p-5 rounded-[2rem] border border-zinc-800 mb-8 shadow-xl">
-            <input type="text" id="desc" placeholder="Nome (Ex: Aluguel)" class="w-full mb-3 p-4 bg-zinc-800 border border-zinc-700 rounded-xl outline-none text-white focus:ring-1 ring-indigo-500 text-sm">
-            <input type="number" id="valor" placeholder="Valor R$" class="w-full mb-4 p-4 bg-zinc-800 border border-zinc-700 rounded-xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-sm">
-            <div class="flex gap-2">
-                <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
-                <button onclick="salvar('despesa')" class="flex-1 bg-rose-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">- Despesa</button>
+        <div class="bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-800 mb-8 shadow-xl">
+            <input type="text" id="desc" placeholder="Nome (Ex: Aluguel)" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
+            <input type="number" id="valor" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            <div class="flex gap-3">
+                <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
+                <button onclick="salvar('despesa')" class="flex-1 bg-rose-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">- Despesa</button>
             </div>
         </div>
 
-        <div id="lista" class="space-y-3 mb-12"></div>
+        <div id="lista" class="space-y-4 mb-12"></div>
 
         <div id="secao-historico" class="space-y-4 pt-6 border-t border-zinc-900">
-            <h3 class="text-[9px] font-black text-zinc-700 uppercase tracking-widest ml-1">Meses Anteriores</h3>
-            <div id="historico-meses" class="space-y-2"></div>
+            <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Meses Anteriores</h3>
+            <div id="historico-meses" class="space-y-3"></div>
 
-            <button onclick="fecharMesESalvar()" class="w-full py-8 text-zinc-600 text-[9px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors">Finalizar Mês Atual</button>
+            <button onclick="fecharMesESalvar()" class="w-full py-10 text-zinc-600 text-[11px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors">Finalizar Mês Atual</button>
         </div>
     </div>
 
@@ -80,8 +89,8 @@
             { id: 6, nome: "Celular", valor: 60.00, tipo: "despesa", riscado: false, dataPagamento: null }
         ];
 
-        let dadosAtuais = JSON.parse(localStorage.getItem('f_v9_at')) || [...dadosIniciais];
-        let hist = JSON.parse(localStorage.getItem('f_v9_hi')) || [];
+        let dadosAtuais = JSON.parse(localStorage.getItem('f_v10_at')) || [...dadosIniciais];
+        let hist = JSON.parse(localStorage.getItem('f_v10_hi')) || [];
 
         function continuarOndeParou() { irApp(); }
         function prepararNovoMes() {
@@ -130,11 +139,11 @@
             if (!nome) return;
             let r=0, d=0; dadosAtuais.forEach(x => x.tipo==='receita'? r+=x.valor : d+=x.valor);
             hist.unshift({ id: Date.now(), nome, valor: (r-d) });
-            localStorage.setItem('f_v9_hi', JSON.stringify(hist));
+            localStorage.setItem('f_v10_hi', JSON.stringify(hist));
             voltarAoMenu();
         }
 
-        function persistir() { localStorage.setItem('f_v9_at', JSON.stringify(dadosAtuais)); atualizar(); }
+        function persistir() { localStorage.setItem('f_v10_at', JSON.stringify(dadosAtuais)); atualizar(); }
 
         function atualizar() {
             const lista = document.getElementById('lista');
@@ -146,16 +155,16 @@
                 i.tipo==='receita'? rt+=i.valor : dt+=i.valor;
                 const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
                 lista.innerHTML += `
-                    <div class="bg-zinc-900 p-4 rounded-2xl flex justify-between items-center border border-zinc-800/50 item-animado">
+                    <div class="bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
                         <div class="${i.riscado?'riscado':''}">
-                            <p class="font-bold text-white text-xs leading-none mb-1">${i.nome}</p>
-                            <p class="font-black ${cV} text-[10px]">R$ ${i.valor.toFixed(2)}</p>
-                            ${i.dataPagamento ? `<p class="text-[7px] text-emerald-500 font-bold mt-1 uppercase">PAGO EM ${i.dataPagamento}</p>` : ''}
+                            <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
+                            <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
+                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase tracking-tighter">PAGO EM ${i.dataPagamento}</p>` : ''}
                         </div>
                         <div class="flex gap-2">
-                            ${!i.dataPagamento && i.tipo==='despesa' ? `<button onclick="marcarPago(${i.id})" class="text-emerald-500 text-[8px] font-black uppercase bg-emerald-500/5 px-2 py-2 rounded-lg border border-emerald-500/10">pago</button>` : ''}
-                            <button onclick="riscar(${i.id})" class="text-indigo-400 text-[8px] font-black uppercase bg-indigo-500/5 px-2 py-2 rounded-lg border border-indigo-500/10">riscar</button>
-                            <button onclick="apagar(${i.id})" class="text-rose-500 text-[8px] font-black uppercase">✕</button>
+                            ${!i.dataPagamento && i.tipo==='despesa' ? `<button onclick="marcarPago(${i.id})" class="btn-acao text-emerald-500 bg-emerald-500/10 rounded-xl border border-emerald-500/20">pago</button>` : ''}
+                            <button onclick="riscar(${i.id})" class="btn-acao text-indigo-400 bg-indigo-500/10 rounded-xl border border-indigo-500/20">riscar</button>
+                            <button onclick="apagar(${i.id})" class="px-3 py-2 text-rose-500 text-lg font-black leading-none">✕</button>
                         </div>
                     </div>`;
             });
@@ -164,7 +173,7 @@
             hDiv.innerHTML = "";
             hist.forEach(m => {
                 hDiv.innerHTML += `
-                    <div class="bg-zinc-900/30 p-3 rounded-xl flex justify-between border border-zinc-800/30 text-[10px]">
+                    <div class="bg-zinc-900/30 p-4 rounded-2xl flex justify-between border border-zinc-800/30 text-xs">
                         <span class="text-zinc-600 font-bold">${m.nome}</span>
                         <span class="font-black ${m.valor>=0?'text-emerald-500':'text-rose-500'}">R$ ${m.valor.toFixed(2)}</span>
                     </div>`;
