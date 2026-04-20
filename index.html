@@ -3,136 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-    <meta name="apple-mobile-web-app-title" content="Finanças">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <title>Finanças Casal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none; }
         .riscado { text-decoration: line-through; opacity: 0.3; filter: grayscale(1); }
-        .item-animado { animation: slideIn 0.2s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         input { font-size: 16px !important; }
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
-        .btn-acao { padding: 12px 10px; font-size: 11px !important; font-weight: 900; text-transform: uppercase; }
-        .card-item:active { background-color: #111113; transform: scale(0.98); transition: 0.1s; }
+        .card-item:active { background-color: #111113; transform: scale(0.98); }
         #modal-edit { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
+        /* Animação simples de confirmação */
+        .flash-success { animation: flash 0.5s ease; }
+        @keyframes flash { 0% { background-color: #050505; } 50% { background-color: #14532d; } 100% { background-color: #050505; } }
     </style>
 </head>
-<body class="font-sans antialiased text-slate-200">
+<body id="corpo" class="font-sans antialiased text-slate-200">
 
     <div id="modal-edit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
         <div class="bg-zinc-900 w-full max-w-[340px] p-8 rounded-[3rem] border border-zinc-800 shadow-2xl">
-            <h3 class="text-white font-black text-xl mb-6 text-center uppercase tracking-widest">Editar Item</h3>
-            <input type="text" id="edit-nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
-            <input type="number" id="edit-valor" inputmode="decimal" step="0.01" class="w-full mb-6 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            <h3 class="text-white font-black text-xl mb-6 text-center uppercase">Editar Item</h3>
+            <input type="text" id="edit-nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white text-base">
+            <input type="number" id="edit-valor" inputmode="decimal" step="0.01" class="w-full mb-6 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold text-base">
             <div class="flex gap-3">
-                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Cancelar</button>
-                <button onclick="confirmarEdicao()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest">Salvar</button>
+                <button onclick="fecharModal()" class="flex-1 bg-zinc-800 text-zinc-400 py-4 rounded-2xl font-bold text-xs uppercase">Sair</button>
+                <button onclick="confirmarEdicao()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold text-xs uppercase">Salvar</button>
             </div>
         </div>
     </div>
 
     <div id="welcome-screen" class="flex flex-col items-center justify-center min-h-screen p-6">
         <div class="bg-zinc-900 p-10 rounded-[3rem] border border-zinc-800 w-full max-w-[340px] shadow-2xl text-center">
-            <h1 class="text-4xl font-black text-white mb-2 tracking-tight">Olá! 👋</h1>
-            <p class="text-zinc-500 text-sm mb-12 font-medium">O que faremos hoje?</p>
-            <div class="space-y-4">
-                <button onclick="continuarOndeParou()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all shadow-lg text-lg">Continuar</button>
-                <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all border border-zinc-700">Novo Mês</button>
-                <button onclick="scrollParaHistorico()" class="w-full text-zinc-500 py-3 text-sm font-bold uppercase tracking-widest">Ver Histórico</button>
+            <h1 class="text-4xl font-black text-white mb-2">Olá! 👋</h1>
+            <div class="space-y-4 mt-8">
+                <button onclick="irApp()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold text-lg">Continuar</button>
+                <button onclick="prepararNovoMes()" class="w-full bg-zinc-800 text-white py-5 rounded-2xl font-bold border border-zinc-700">Novo Mês</button>
             </div>
         </div>
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
-        <div class="flex justify-between items-center mb-6">
-            <button onclick="voltarAoMenu()" class="text-zinc-500 text-[11px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 rounded-xl">← Menu</button>
-            <span class="text-zinc-800 text-[11px] font-black uppercase tracking-tighter">Finanças Casal</span>
-        </div>
-
-        <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6 relative">
-            <p class="text-indigo-200 text-[11px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80 text-center">Saldo Disponível</p>
-            <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter text-white">R$ 0,00</h2>
-            <div class="flex justify-between border-t border-white/10 pt-5 px-2">
+        <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6">
+            <p class="text-indigo-200 text-[10px] font-bold uppercase text-center mb-1">Saldo Disponível (Receitas - Pagos)</p>
+            <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter">R$ 0,00</h2>
+            <div class="flex justify-between border-t border-white/10 pt-5">
                 <div>
-                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Receitas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase">Entradas</p>
                     <p id="resumo-receitas" class="text-emerald-300 text-sm font-black">R$ 0,00</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-white/50 text-[10px] font-bold uppercase mb-1">Despesas</p>
+                    <p class="text-white/50 text-[10px] font-bold uppercase">Total Despesas</p>
                     <p id="resumo-despesas" class="text-rose-300 text-sm font-black">R$ 0,00</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-800 mb-8 shadow-xl">
-            <input type="text" id="desc" placeholder="Nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white focus:ring-1 ring-indigo-500 text-base">
-            <input type="number" id="valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold outline-none focus:ring-1 ring-indigo-500 text-base">
+            <input type="text" id="desc" placeholder="Nome" class="w-full mb-3 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl outline-none text-white text-base">
+            <input type="number" id="valor" inputmode="decimal" step="0.01" placeholder="Valor R$" class="w-full mb-4 p-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white font-bold text-base">
             <div class="flex gap-3">
-                <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">+ Receita</button>
-                <button onclick="salvar('despesa')" class="flex-1 bg-rose-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">- Despesa</button>
+                <button onclick="salvar('receita')" class="flex-1 bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest">+ Receita</button>
+                <button onclick="salvar('despesa')" class="flex-1 bg-rose-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest">- Despesa</button>
             </div>
         </div>
 
         <div id="lista" class="space-y-4 mb-12"></div>
 
-        <div id="secao-historico" class="space-y-6 pt-10 border-t border-zinc-900">
-            <div onclick="fecharMesESalvar()" class="bg-gradient-to-tr from-zinc-900 to-zinc-800 p-6 rounded-[2.5rem] border border-zinc-700/50 shadow-xl active:scale-95 transition-all group">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-indigo-500/20 p-3 rounded-2xl"><span class="text-2xl">🗓️</span></div>
-                        <div>
-                            <h4 class="text-white font-black text-sm uppercase tracking-wider">Finalizar Mês</h4>
-                            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Arquivar e limpar lista</p>
-                        </div>
-                    </div>
-                    <span class="text-zinc-700 text-xl font-black">→</span>
-                </div>
-            </div>
-            <div class="space-y-3">
-                <h3 class="text-[11px] font-black text-zinc-700 uppercase tracking-widest ml-1">Meses Anteriores</h3>
-                <div id="historico-meses" class="space-y-3"></div>
-            </div>
+        <div id="secao-historico" class="pt-10 border-t border-zinc-900">
+            <button onclick="fecharMesESalvar()" class="w-full bg-zinc-900 p-6 rounded-[2rem] border border-zinc-800 mb-6 text-white font-bold uppercase text-xs">Finalizar e Arquivar Mês</button>
+            <div id="historico-meses" class="space-y-3"></div>
         </div>
     </div>
 
     <script>
-        const dadosIniciais = [
-            { id: 1, nome: "Financiamento", valor: 1800.00, tipo: "despesa", riscado: false, dataPagamento: null },
-            { id: 2, nome: "Condominio", valor: 218.00, tipo: "despesa", riscado: false, dataPagamento: null },
-            { id: 3, nome: "Luz", valor: 250.00, tipo: "despesa", riscado: false, dataPagamento: null },
-            { id: 4, nome: "Internet", valor: 80.00, tipo: "despesa", riscado: false, dataPagamento: null },
-            { id: 5, nome: "Perua", valor: 240.00, tipo: "despesa", riscado: false, dataPagamento: null },
-            { id: 6, nome: "Celular", valor: 60.00, tipo: "despesa", riscado: false, dataPagamento: null }
-        ];
-
-        let dadosAtuais = JSON.parse(localStorage.getItem('f_v12_at')) || [...dadosIniciais];
-        let hist = JSON.parse(localStorage.getItem('f_v12_hi')) || [];
+        let dadosAtuais = JSON.parse(localStorage.getItem('f_v13_at')) || [];
+        let hist = JSON.parse(localStorage.getItem('f_v13_hi')) || [];
         let itemSendoEditado = null;
 
-        function irApp() { document.getElementById('welcome-screen').classList.add('hidden'); document.getElementById('main-app').classList.remove('hidden'); atualizar(); }
-        function voltarAoMenu() { document.getElementById('main-app').classList.add('hidden'); document.getElementById('welcome-screen').classList.remove('hidden'); }
-        function continuarOndeParou() { irApp(); }
-        function prepararNovoMes() { if(confirm("Limpar lançamentos atuais?")) { dadosAtuais = JSON.parse(JSON.stringify(dadosIniciais)); persistir(); irApp(); } }
-        function scrollParaHistorico() { irApp(); setTimeout(() => document.getElementById('secao-historico').scrollIntoView({behavior:'smooth'}), 300); }
+        function irApp() { 
+            document.getElementById('welcome-screen').classList.add('hidden'); 
+            document.getElementById('main-app').classList.remove('hidden'); 
+            atualizar(); 
+        }
 
         function salvar(tipo) {
             const d = document.getElementById('desc'), v = document.getElementById('valor');
             const val = parseFloat(v.value);
             if (!d.value || isNaN(val)) return;
-            dadosAtuais.push({ id: Date.now(), nome: d.value, valor: val, tipo, riscado: false, dataPagamento: null });
-            persistir(); d.value = ""; v.value = "";
+
+            dadosAtuais.push({ id: Date.now(), nome: d.value, valor: val, tipo, riscado: false });
+            
+            // Feedback e Limpeza
+            d.value = ""; v.value = "";
+            document.getElementById('corpo').classList.add('flash-success');
+            setTimeout(() => document.getElementById('corpo').classList.remove('flash-success'), 500);
+            
+            persistir();
         }
 
-        let timerSegurar;
-        function iniciarPressao(id) { timerSegurar = setTimeout(() => editarItem(id), 800); }
-        function cancelarPressao() { clearTimeout(timerSegurar); }
+        function marcarPago(id) {
+            const i = dadosAtuais.find(x => x.id === id);
+            if (i) {
+                i.riscado = !i.riscado; 
+                persistir();
+            }
+        }
 
         function editarItem(id) {
             const item = dadosAtuais.find(x => x.id === id);
@@ -143,7 +117,7 @@
             document.getElementById('modal-edit').classList.remove('hidden');
         }
 
-        function fecharModal() { document.getElementById('modal-edit').classList.add('hidden'); itemSendoEditado = null; }
+        function fecharModal() { document.getElementById('modal-edit').classList.add('hidden'); }
 
         function confirmarEdicao() {
             if (itemSendoEditado) {
@@ -153,37 +127,23 @@
             }
         }
 
-        function marcarPago(id) {
-            const i = dadosAtuais.find(x => x.id === id);
-            if (i && confirm(`Marcar ${i.nome} como pago?`)) {
-                i.dataPagamento = new Date().toLocaleDateString('pt-BR');
-                i.riscado = true; 
-                persistir();
-            }
-        }
-
-        function riscar(id) { const i = dadosAtuais.find(x => x.id === id); if(i) { i.riscado = !i.riscado; persistir(); } }
         function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
 
-        function apagarMesHistorico(id) {
-            if(confirm("Excluir este mês do histórico?")) {
-                hist = hist.filter(m => m.id !== id);
-                localStorage.setItem('f_v12_hi', JSON.stringify(hist));
-                atualizar();
-            }
-        }
-
         function fecharMesESalvar() {
-            const nome = prompt("Nome do mês (ex: Maio/26):");
+            const nome = prompt("Nome do mês:");
             if (!nome) return;
             let r=0, d=0;
             dadosAtuais.forEach(x => x.tipo==='receita' ? r+=x.valor : d+=x.valor);
             hist.unshift({ id: Date.now(), nome, receita: r, despesa: d });
-            localStorage.setItem('f_v12_hi', JSON.stringify(hist));
-            voltarAoMenu();
+            localStorage.setItem('f_v13_hi', JSON.stringify(hist));
+            alert("Mês arquivado!");
+            location.reload();
         }
 
-        function persistir() { localStorage.setItem('f_v12_at', JSON.stringify(dadosAtuais)); atualizar(); }
+        function persistir() { 
+            localStorage.setItem('f_v13_at', JSON.stringify(dadosAtuais)); 
+            atualizar(); 
+        }
 
         function atualizar() {
             const lista = document.getElementById('lista');
@@ -192,53 +152,41 @@
             let despesasTotal = 0;
             let despesasPagas = 0;
 
-            const ord = [...dadosAtuais].sort((a,b) => a.tipo==='receita' ? -1 : 1);
-            ord.forEach(i => {
-                if(i.tipo === 'receita') receitasTotal += i.valor;
-                if(i.tipo === 'despesa') {
-                    despesasTotal += i.valor;
-                    if(i.riscado) despesasPagas += i.valor;
+            dadosAtuais.forEach(i => {
+                const valor = parseFloat(i.valor);
+                if(i.tipo === 'receita') {
+                    receitasTotal += valor;
+                } else {
+                    despesasTotal += valor;
+                    if(i.riscado) despesasPagas += valor;
                 }
 
-                const cV = i.tipo==='receita'? 'text-emerald-400':'text-rose-400';
+                const corValor = i.tipo === 'receita' ? 'text-emerald-400' : 'text-rose-400';
+                
                 lista.innerHTML += `
-                    <div onmousedown="iniciarPressao(${i.id})" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${i.id})" ontouchend="cancelarPressao()" 
-                         class="card-item bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 item-animado shadow-lg">
-                        <div class="${i.riscado?'riscado':''}">
-                            <p class="font-bold text-white text-base leading-tight mb-1">${i.nome}</p>
-                            <p class="font-black ${cV} text-sm tracking-wide">R$ ${i.valor.toFixed(2)}</p>
-                            ${i.dataPagamento ? `<p class="text-[9px] text-emerald-500 font-bold mt-2 uppercase">PAGO EM ${i.dataPagamento}</p>` : ''}
+                    <div class="bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 card-item">
+                        <div class="${i.riscado ? 'riscado' : ''}" onclick="editarItem(${i.id})">
+                            <p class="font-bold text-white text-base">${i.nome}</p>
+                            <p class="font-black ${corValor} text-sm">R$ ${valor.toFixed(2)}</p>
                         </div>
                         <div class="flex gap-2">
-                            ${!i.riscado && i.tipo==='despesa' ? `<button onclick="marcarPago(${i.id})" class="btn-acao text-emerald-500 bg-emerald-500/10 rounded-xl border border-emerald-500/20">pago</button>` : ''}
-                            <button onclick="riscar(${i.id})" class="btn-acao text-indigo-400 bg-indigo-500/10 rounded-xl border border-indigo-500/20">riscar</button>
-                            <button onclick="apagar(${i.id})" class="px-3 py-2 text-rose-500 text-lg font-black">✕</button>
+                            ${i.tipo === 'despesa' ? `
+                                <button onclick="marcarPago(${i.id})" class="px-4 py-2 rounded-xl font-bold text-[10px] uppercase border ${i.riscado ? 'bg-zinc-800 border-zinc-700 text-zinc-500' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'}">
+                                    ${i.riscado ? 'Pago ✓' : 'Pagar'}
+                                </button>` : ''}
+                            <button onclick="apagar(${i.id})" class="px-3 text-rose-500 font-black">✕</button>
                         </div>
-                    </div>`;
-            });
-
-            const hDiv = document.getElementById('historico-meses');
-            hDiv.innerHTML = "";
-            hist.forEach(m => {
-                hDiv.innerHTML += `
-                    <div class="bg-zinc-900/50 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50">
-                        <div>
-                            <p class="text-white font-bold text-sm mb-1">${m.nome}</p>
-                            <div class="flex gap-3 text-[10px] font-black uppercase">
-                                <span class="text-emerald-500">Rec: R$ ${m.receita.toFixed(2)}</span>
-                                <span class="text-rose-500">Desp: R$ ${m.despesa.toFixed(2)}</span>
-                            </div>
-                        </div>
-                        <button onclick="apagarMesHistorico(${m.id})" class="text-zinc-700 p-2 font-black">✕</button>
                     </div>`;
             });
 
             const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            // LÓGICA: Saldo = Receitas - O que já foi pago
+            // CÁLCULO: Saldo = Todas as Receitas - Apenas o que foi pago
             document.getElementById('saldo-total').innerText = fmt(receitasTotal - despesasPagas);
             document.getElementById('resumo-receitas').innerText = fmt(receitasTotal);
             document.getElementById('resumo-despesas').innerText = fmt(despesasTotal);
         }
+
+        function prepararNovoMes() { if(confirm("Limpar tudo?")) { localStorage.removeItem('f_v13_at'); location.reload(); } }
     </script>
 </body>
 </html>
