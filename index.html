@@ -4,13 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Finanças Casal</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Finanças">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/4f46e5/ffffff?text=F">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none; }
         .riscado-visual { opacity: 0.2; filter: grayscale(1); text-decoration: line-through; }
         .pago-status { text-decoration: line-through; opacity: 0.5; }
         input { font-size: 16px !important; }
-        body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; }
+        body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; padding-top: env(safe-area-inset-top); }
         .card-item { transition: all 0.2s; }
         #modal-edit { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
         .flash-success { animation: flash 0.4s ease; }
@@ -33,6 +40,7 @@
 
     <div id="welcome-screen" class="flex flex-col items-center justify-center min-h-screen p-6">
         <div class="bg-zinc-900 p-10 rounded-[3rem] border border-zinc-800 w-full max-w-[340px] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center text-4xl shadow-lg shadow-indigo-500/20">💰</div>
             <h1 class="text-4xl font-black text-white mb-2">Olá! 👋</h1>
             <p class="text-zinc-500 text-sm mb-10">Finanças do Casal</p>
             <div class="space-y-4">
@@ -43,6 +51,11 @@
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-4 pt-4 pb-20">
+        
+        <button onclick="voltarParaHome()" class="mb-6 flex items-center text-zinc-500 font-bold text-xs uppercase tracking-widest active:opacity-50">
+            <span class="mr-2">←</span> Voltar ao Início
+        </button>
+
         <div class="bg-indigo-700 p-8 rounded-[2.5rem] shadow-2xl text-white mb-6">
             <p class="text-indigo-200 text-[10px] font-bold uppercase text-center mb-1">Saldo (Receita - Despesas)</p>
             <h2 id="saldo-total" class="text-5xl font-black mb-6 text-center tracking-tighter">R$ 0,00</h2>
@@ -87,10 +100,20 @@
         let itemSendoEditado = null;
         let timerSegurar;
 
+        // Registro do Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => console.log("PWA Ativo"));
+        }
+
         function irApp() { 
             document.getElementById('welcome-screen').classList.add('hidden'); 
             document.getElementById('main-app').classList.remove('hidden'); 
             atualizar(); 
+        }
+
+        function voltarParaHome() {
+            document.getElementById('main-app').classList.add('hidden'); 
+            document.getElementById('welcome-screen').classList.remove('hidden'); 
         }
 
         function toqueInicia(id) { timerSegurar = setTimeout(() => editarItem(id), 600); }
