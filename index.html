@@ -99,6 +99,8 @@
         let dadosAtuais = JSON.parse(localStorage.getItem('f_v17_at')) || [...dadosPadrao];
         let itemSendoEditado = null;
         let timerSegurar;
+        let touchStartY = 0;
+        let isScrolling = false;
 
         // Registro do Service Worker para PWA
         if ('serviceWorker' in navigator) {
@@ -116,8 +118,30 @@
             document.getElementById('welcome-screen').classList.remove('hidden'); 
         }
 
-        function toqueInicia(id) { timerSegurar = setTimeout(() => editarItem(id), 600); }
-        function toqueTermina() { clearTimeout(timerSegurar); }
+        function toqueInicia(e, id) {
+            touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
+            isScrolling = false;
+            timerSegurar = setTimeout(() => {
+                if (!isScrolling) {
+                    editarItem(id);
+                }
+            }, 600);
+        }
+
+        function toqueMovimenta(e) {
+            if (!e.touches) return;
+            const touchY = e.touches[0].clientY;
+            const diffY = Math.abs(touchY - touchStartY);
+            if (diffY > 10) {
+                isScrolling = true;
+                clearTimeout(timerSegurar);
+            }
+        }
+
+        function toqueTermina() {
+            clearTimeout(timerSegurar);
+            isScrolling = false;
+        }
 
         function salvar(tipo) {
             const d = document.getElementById('desc'), v = document.getElementById('valor');
@@ -185,7 +209,7 @@
                 const corValor = i.tipo === 'receita' ? 'text-emerald-400' : 'text-rose-400';
                 
                 lista.innerHTML += `
-                    <div onmousedown="toqueInicia(${i.id})" onmouseup="toqueTermina()" ontouchstart="toqueInicia(${i.id})" ontouchend="toqueTermina()"
+                    <div ontouchstart="toqueInicia(event, ${i.id})" ontouchmove="toqueMovimenta(event)" ontouchend="toqueTermina()" onmousedown="toqueInicia(event, ${i.id})" onmouseup="toqueTermina()"
                          class="bg-zinc-900 p-5 rounded-[2rem] flex justify-between items-center border border-zinc-800/50 card-item ${estiloClasse}">
                         <div>
                             <p class="font-bold text-white text-base">${i.nome}</p>
