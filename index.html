@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Finanças Casal</title>
-    
+
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +15,8 @@
     <style>
         .hidden { display: none; }
         .riscado-visual { opacity: 0.2; filter: grayscale(1); text-decoration: line-through; }
-        .pago-status { text-decoration: line-through; opacity: 0.5; }
+        .pago-status { opacity: 0.6; }
+        .pago-texto { text-decoration: line-through; }
         input { font-size: 16px !important; }
         body { -webkit-tap-highlight-color: transparent; background-color: #050505; user-select: none; padding-top: env(safe-area-inset-top); }
         .card-item { transition: all 0.2s; }
@@ -27,6 +28,7 @@
         #lista::-webkit-scrollbar { width: 6px; }
         #lista::-webkit-scrollbar-track { background: transparent; }
         #lista::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .btn-disabled { opacity: 0.1; pointer-events: none; grayscale: 1; }
     </style>
 </head>
 <body id="corpo" class="font-sans antialiased text-slate-200">
@@ -56,21 +58,21 @@
     </div>
 
     <div id="main-app" class="hidden w-full max-w-[450px] mx-auto px-3 pt-2">
-        
+
         <button onclick="voltarParaHome()" class="mb-2 flex items-center text-zinc-500 font-bold text-xs uppercase tracking-widest active:opacity-50">
             <span class="mr-2">←</span> Voltar
         </button>
 
         <div class="bg-indigo-700 p-4 rounded-[2rem] shadow-2xl text-white mb-2">
-            <p class="text-indigo-200 text-[9px] font-bold uppercase text-center mb-1">Saldo (Receita - Despesas Pagas)</p>
+            <p class="text-indigo-200 text-[9px] font-bold uppercase text-center mb-1">Saldo (Receita - Despesas Ativas)</p>
             <h2 id="saldo-total" class="text-4xl font-black mb-3 text-center tracking-tighter">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-3 gap-2">
                 <div class="w-1/2">
-                    <p class="text-white/50 text-[8px] font-bold uppercase mb-1">Receita</p>
+                    <p class="text-white/50 text-[8px] font-bold uppercase mb-1">Disponível (Receita - Pagos)</p>
                     <p id="resumo-disponivel" class="text-emerald-300 text-sm font-black">R$ 0,00</p>
                 </div>
                 <div class="text-right w-1/2">
-                    <p class="text-white/50 text-[8px] font-bold uppercase mb-1">Despesas</p>
+                    <p class="text-white/50 text-[8px] font-bold uppercase mb-1">Total Despesas</p>
                     <p id="resumo-despesas" class="text-rose-300 text-sm font-black">R$ 0,00</p>
                 </div>
             </div>
@@ -91,7 +93,7 @@
     <script>
         const dadosPadrao = [
             { id: 1, nome: "Financiamento", valor: 1800, tipo: "despesa", pago: false, riscado: false },
-            { id: 2, nome: "Condominio", valor: 218, tipo: "despesa", pago: false, riscado: false },
+            { id: 2, nome: "Condomínio", valor: 218, tipo: "despesa", pago: false, riscado: false },
             { id: 3, nome: "Luz", valor: 250, tipo: "despesa", pago: false, riscado: false },
             { id: 4, nome: "Água", valor: 120, tipo: "despesa", pago: false, riscado: false },
             { id: 5, nome: "Internet", valor: 80, tipo: "despesa", pago: false, riscado: false },
@@ -107,11 +109,6 @@
         let touchStartY = 0;
         let isScrolling = false;
 
-        // Registro do Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log("PWA Ativo"));
-        }
-
         function irApp() { 
             document.getElementById('welcome-screen').classList.add('hidden'); 
             document.getElementById('main-app').classList.remove('hidden'); 
@@ -126,27 +123,18 @@
         function toqueInicia(e, id) {
             touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
             isScrolling = false;
-            timerSegurar = setTimeout(() => {
-                if (!isScrolling) {
-                    editarItem(id);
-                }
-            }, 600);
+            timerSegurar = setTimeout(() => { if (!isScrolling) editarItem(id); }, 600);
         }
 
         function toqueMovimenta(e) {
             if (!e.touches) return;
-            const touchY = e.touches[0].clientY;
-            const diffY = Math.abs(touchY - touchStartY);
-            if (diffY > 10) {
+            if (Math.abs(e.touches[0].clientY - touchStartY) > 10) {
                 isScrolling = true;
                 clearTimeout(timerSegurar);
             }
         }
 
-        function toqueTermina() {
-            clearTimeout(timerSegurar);
-            isScrolling = false;
-        }
+        function toqueTermina() { clearTimeout(timerSegurar); }
 
         function salvar(tipo) {
             const d = document.getElementById('desc'), v = document.getElementById('valor');
@@ -161,18 +149,12 @@
 
         function alternarPago(id) {
             const i = dadosAtuais.find(x => x.id === id);
-            if (i && !i.riscado) {
-                i.pago = !i.pago;
-                persistir();
-            }
+            if (i && !i.riscado) { i.pago = !i.pago; persistir(); }
         }
 
         function alternarRiscado(id) {
             const i = dadosAtuais.find(x => x.id === id);
-            if (i && !i.pago) {
-                i.riscado = !i.riscado;
-                persistir();
-            }
+            if (i && !i.pago) { i.riscado = !i.riscado; persistir(); }
         }
 
         function editarItem(id) {
@@ -194,13 +176,7 @@
             }
         }
 
-        function apagar(id) { 
-            const item = dadosAtuais.find(x => x.id === id);
-            if (item && !item.pago && confirm("Apagar?")) { 
-                dadosAtuais = dadosAtuais.filter(x => x.id !== id);
-                persistir();
-            }
-        }
+        function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
 
         function persistir() { 
             localStorage.setItem('f_v17_at', JSON.stringify(dadosAtuais)); 
@@ -210,51 +186,60 @@
         function atualizar() {
             const lista = document.getElementById('lista');
             lista.innerHTML = "";
-            let recTotal = 0, despTotal = 0, despPagas = 0;
+            let recTotal = 0, despAtivasTotal = 0, despPagas = 0;
 
             const ordenados = [...dadosAtuais].sort((a,b) => a.tipo === 'receita' ? -1 : 1);
 
             ordenados.forEach(i => {
                 const v = parseFloat(i.valor);
                 
-                // Cálculo de totais
                 if(i.tipo === 'receita') {
                     recTotal += v;
                 } else {
-                    // Despesas riscadas OU apagadas diminuem o total de despesas
-                    if(!i.riscado) despTotal += v;
-                    // Apenas despesas pagas diminuem receita e são subtraídas do saldo
-                    if(i.pago) despPagas += v;
+                    // Despesas riscadas não entram em nenhum cálculo
+                    if(!i.riscado) {
+                        despAtivasTotal += v;
+                        if(i.pago) despPagas += v;
+                    }
                 }
 
-                const estiloClasse = i.riscado ? 'riscado-visual' : (i.pago ? 'pago-status' : '');
+                const cardStyle = i.riscado ? 'riscado-visual' : (i.pago ? 'pago-status' : '');
+                const textStyle = i.pago ? 'pago-texto' : '';
                 const corValor = i.tipo === 'receita' ? 'text-emerald-400' : 'text-rose-400';
                 
+                // Bloqueios de conflito
+                const lockRiscar = i.pago ? 'btn-disabled' : '';
+                const lockPagar = i.riscado ? 'btn-disabled' : '';
+
                 lista.innerHTML += `
-                    <div ontouchstart="toqueInicia(event, ${i.id})" ontouchmove="toqueMovimenta(event)" ontouchend="toqueTermina()" onmousedown="toqueInicia(event, ${i.id})" onmouseup="toqueTermina()" class="card-item p-4 bg-zinc-800 rounded-2xl flex justify-between items-center ${estiloClasse}">
+                    <div ontouchstart="toqueInicia(event, ${i.id})" ontouchmove="toqueMovimenta(event)" ontouchend="toqueTermina()" onmousedown="toqueInicia(event, ${i.id})" onmouseup="toqueTermina()" class="bg-zinc-900 p-3 rounded-xl flex justify-between items-center border border-zinc-800/50 card-item ${cardStyle}">
                         <div>
-                            <p class="font-bold text-white text-base">${i.nome}</p>
+                            <p class="font-bold text-white text-base ${textStyle}">${i.nome}</p>
                             <p class="font-black ${corValor} text-sm">R$ ${v.toFixed(2)}</p>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="alternarRiscado(${i.id})" class="px-2 py-1 ${i.pago ? 'bg-zinc-700 text-zinc-600 cursor-not-allowed' : 'bg-zinc-800 text-zinc-400 hover:bg-yellow-900 hover:text-yellow-300'} rounded-lg text-[10px] font-bold">RISCAR</button>
+                            <button onclick="alternarRiscado(${i.id})" class="px-2 py-1 bg-zinc-800 text-zinc-400 rounded-lg text-[10px] font-bold ${lockRiscar}">RISCAR</button>
                             ${i.tipo === 'despesa' ? `
-                                <button onclick="alternarPago(${i.id})" class="px-3 py-1 rounded-lg font-bold text-[10px] border ${i.pago ? 'bg-emerald-500 text-white' : (i.riscado ? 'border-zinc-600 text-zinc-600 cursor-not-allowed' : 'border-emerald-500 text-emerald-400 hover:bg-emerald-500 hover:text-white')}">
+                                <button onclick="alternarPago(${i.id})" class="px-3 py-1 rounded-lg font-bold text-[10px] border ${i.pago ? 'bg-emerald-500 text-white' : 'border-emerald-500 text-emerald-400'} ${lockPagar}">
                                     ${i.pago ? 'PAGO ✓' : 'PAGAR'}
                                 </button>
                             ` : ''}
-                            <button onclick="apagar(${i.id})" class="px-2 ${i.pago ? 'text-zinc-600 cursor-not-allowed' : 'text-rose-900 hover:text-rose-600'} text-lg">✕</button>
+                            <button onclick="apagar(${i.id})" class="px-2 text-rose-900 text-lg">✕</button>
                         </div>
                     </div>`;
             });
 
             const f = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('saldo-total').innerText = f(recTotal - despPagas);
-            document.getElementById('resumo-disponivel').innerText = f(recTotal);
-            document.getElementById('resumo-despesas').innerText = f(despTotal);
+            document.getElementById('saldo-total').innerText = f(recTotal - despAtivasTotal);
+            document.getElementById('resumo-disponivel').innerText = f(recTotal - despPagas);
+            document.getElementById('resumo-despesas').innerText = f(despAtivasTotal);
         }
 
         function prepararNovoMes() { if(confirm("Isso resetará os dados para o padrão. Continuar?")) { dadosAtuais = [...dadosPadrao]; persistir(); irApp(); } }
+        
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => console.log("PWA Ativo"));
+        }
     </script>
 </body>
 </html>
