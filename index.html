@@ -206,8 +206,9 @@
                 const v = parseFloat(i.valor);
                 if(i.tipo === 'receita') recTotal += v;
                 else {
-                    despTotal += v;
-                    if(i.pago) despPagas += v;
+                    // Despesas riscadas NÃO contam no total
+                    if(!i.riscado) despTotal += v;
+                    if(i.pago && !i.riscado) despPagas += v;
                 }
 
                 const estiloClasse = i.riscado ? 'riscado-visual' : (i.pago ? 'pago-status' : '');
