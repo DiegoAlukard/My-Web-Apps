@@ -62,7 +62,7 @@
         </button>
 
         <div class="bg-indigo-700 p-4 rounded-[2rem] shadow-2xl text-white mb-2">
-            <p class="text-indigo-200 text-[9px] font-bold uppercase text-center mb-1">Saldo (Receita - Despesas)</p>
+            <p class="text-indigo-200 text-[9px] font-bold uppercase text-center mb-1">Saldo (Receita - Despesas Pagas)</p>
             <h2 id="saldo-total" class="text-4xl font-black mb-3 text-center tracking-tighter">R$ 0,00</h2>
             <div class="flex justify-between border-t border-white/10 pt-3 gap-2">
                 <div class="w-1/2">
@@ -161,12 +161,18 @@
 
         function alternarPago(id) {
             const i = dadosAtuais.find(x => x.id === id);
-            if (i) { i.pago = !i.pago; persistir(); }
+            if (i && !i.riscado) {
+                i.pago = !i.pago;
+                persistir();
+            }
         }
 
         function alternarRiscado(id) {
             const i = dadosAtuais.find(x => x.id === id);
-            if (i) { i.riscado = !i.riscado; persistir(); }
+            if (i && !i.pago) {
+                i.riscado = !i.riscado;
+                persistir();
+            }
         }
 
         function editarItem(id) {
@@ -188,7 +194,13 @@
             }
         }
 
-        function apagar(id) { if(confirm("Apagar?")) { dadosAtuais = dadosAtuais.filter(x => x.id !== id); persistir(); } }
+        function apagar(id) { 
+            const item = dadosAtuais.find(x => x.id === id);
+            if (item && !item.pago && confirm("Apagar?")) { 
+                dadosAtuais = dadosAtuais.filter(x => x.id !== id);
+                persistir();
+            }
+        }
 
         function persistir() { 
             localStorage.setItem('f_v17_at', JSON.stringify(dadosAtuais)); 
@@ -204,37 +216,41 @@
 
             ordenados.forEach(i => {
                 const v = parseFloat(i.valor);
-                if(i.tipo === 'receita') recTotal += v;
-                else {
-                    // Despesas riscadas NÃO contam no total
+                
+                // Cálculo de totais
+                if(i.tipo === 'receita') {
+                    recTotal += v;
+                } else {
+                    // Despesas riscadas OU apagadas diminuem o total de despesas
                     if(!i.riscado) despTotal += v;
-                    if(i.pago && !i.riscado) despPagas += v;
+                    // Apenas despesas pagas diminuem receita e são subtraídas do saldo
+                    if(i.pago) despPagas += v;
                 }
 
                 const estiloClasse = i.riscado ? 'riscado-visual' : (i.pago ? 'pago-status' : '');
                 const corValor = i.tipo === 'receita' ? 'text-emerald-400' : 'text-rose-400';
                 
                 lista.innerHTML += `
-                    <div ontouchstart="toqueInicia(event, ${i.id})" ontouchmove="toqueMovimenta(event)" ontouchend="toqueTermina()" onmousedown="toqueInicia(event, ${i.id})" onmouseup="toqueTermina()" class="bg-zinc-900 p-3 rounded-xl flex justify-between items-center border border-zinc-800/50 card-item ${estiloClasse}">
+                    <div ontouchstart="toqueInicia(event, ${i.id})" ontouchmove="toqueMovimenta(event)" ontouchend="toqueTermina()" onmousedown="toqueInicia(event, ${i.id})" onmouseup="toqueTermina()" class="card-item p-4 bg-zinc-800 rounded-2xl flex justify-between items-center ${estiloClasse}">
                         <div>
                             <p class="font-bold text-white text-base">${i.nome}</p>
                             <p class="font-black ${corValor} text-sm">R$ ${v.toFixed(2)}</p>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="alternarRiscado(${i.id})" class="px-2 py-1 bg-zinc-800 text-zinc-400 rounded-lg text-[10px] font-bold">RISCAR</button>
+                            <button onclick="alternarRiscado(${i.id})" class="px-2 py-1 ${i.pago ? 'bg-zinc-700 text-zinc-600 cursor-not-allowed' : 'bg-zinc-800 text-zinc-400 hover:bg-yellow-900 hover:text-yellow-300'} rounded-lg text-[10px] font-bold">RISCAR</button>
                             ${i.tipo === 'despesa' ? `
-                                <button onclick="alternarPago(${i.id})" class="px-3 py-1 rounded-lg font-bold text-[10px] border ${i.pago ? 'bg-emerald-500 text-white' : 'border-emerald-500 text-emerald-400'}">
+                                <button onclick="alternarPago(${i.id})" class="px-3 py-1 rounded-lg font-bold text-[10px] border ${i.pago ? 'bg-emerald-500 text-white' : (i.riscado ? 'border-zinc-600 text-zinc-600 cursor-not-allowed' : 'border-emerald-500 text-emerald-400 hover:bg-emerald-500 hover:text-white')}">
                                     ${i.pago ? 'PAGO ✓' : 'PAGAR'}
                                 </button>
                             ` : ''}
-                            <button onclick="apagar(${i.id})" class="px-2 text-rose-900 text-lg">✕</button>
+                            <button onclick="apagar(${i.id})" class="px-2 ${i.pago ? 'text-zinc-600 cursor-not-allowed' : 'text-rose-900 hover:text-rose-600'} text-lg">✕</button>
                         </div>
                     </div>`;
             });
 
             const f = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('saldo-total').innerText = f(recTotal - despTotal);
-            document.getElementById('resumo-disponivel').innerText = f(recTotal - despPagas);
+            document.getElementById('saldo-total').innerText = f(recTotal - despPagas);
+            document.getElementById('resumo-disponivel').innerText = f(recTotal);
             document.getElementById('resumo-despesas').innerText = f(despTotal);
         }
 
