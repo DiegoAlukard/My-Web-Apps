@@ -166,7 +166,7 @@
             document.getElementById('modal-edit').classList.remove('hidden');
         }
 
-        function fecharModal() { document.getElementById('modal-edit').classList.add('hidden'); }
+        function fecharModal() { document.getElementById('saldo-total').innerText = f(recAtivaTotal - despAtivasTotal);}
 
         function confirmarEdicao() {
             if (itemSendoEditado) {
